@@ -53,16 +53,33 @@ abstract class StreamComponent extends Component {
   componentWillReceiveProps(rootNode) {
     _onReceivePropsController.add(rootNode);
   }
+  
+  Stream get stateStream => null;
+  
+  @override
+  Map getInitialState() {
+    var initialState = {};
+
+    if(stateStream != null) {
+      stateStream.listen((state) {
+        initialState = state;
+        setState(state);
+      });
+    }
+    
+    
+    return initialState;
+  }
 
   // State stream
-  StreamController<Map> stateStreamController = new StreamController<Map>();
-  Stream<Map> get stateStream => stateStreamController.stream;
+//  StreamController<Map> stateStreamController = new StreamController<Map>();
+//  Stream<Map> get stateStream => stateStreamController.stream;
 
-  @override
-  setState(s) {
-   stateStreamController.add(s);
-   super.setState(s);
-  }
+//  @override
+//  setState(s) {
+//   stateStreamController.add(s);
+//   super.setState(s);
+//  }
 
 }
 
