@@ -33,10 +33,13 @@ abstract class StreamComponent extends Component {
     _onMountingController.add('');
   }
   
-  
   @override
   componentWillUnmount() {
     _onUnmountedController.add('');
+    _onReceivePropsController.close();
+    if(stateStream != null) {
+      _stateSubscription.cancel();
+    }
   }
   
   @override
@@ -55,64 +58,19 @@ abstract class StreamComponent extends Component {
   }
   
   Stream get stateStream => null;
+  StreamSubscription _stateSubscription; // TODO: should this be a list of subscriptions?
   
   @override
   Map getInitialState() {
     var initialState = {};
 
     if(stateStream != null) {
-      stateStream.listen((state) {
+      _stateSubscription = stateStream.listen((state) {
         initialState = state;
         setState(state);
       });
     }
-    
-    
     return initialState;
   }
 
-  // State stream
-//  StreamController<Map> stateStreamController = new StreamController<Map>();
-//  Stream<Map> get stateStream => stateStreamController.stream;
-
-//  @override
-//  setState(s) {
-//   stateStreamController.add(s);
-//   super.setState(s);
-//  }
-
-}
-
-Stream<Map> stateStreamer(Duration interval, [int maxCount]) {
-  StreamController<Map> controller;
-  Timer timer;
-  int counter = 0;
-  
-  void tick(_) {
-    counter++;
-    controller.add(counter); // Ask stream to send counter values as event.
-    if (maxCount != null && counter >= maxCount) {
-      timer.cancel();
-      controller.close();    // Ask stream to shut down and tell listeners.
-    }
-  }
-  
-  void startTimer() {
-    timer = new Timer.periodic(interval, tick);
-  }
-
-  void stopTimer() {
-    if (timer != null) {
-      timer.cancel();
-      timer = null;
-    }
-  }
-
-  controller = new StreamController<Map>(
-      onListen: startTimer,
-      onPause: stopTimer,
-      onResume: startTimer,
-      onCancel: stopTimer);
-
-  return controller.stream;
 }

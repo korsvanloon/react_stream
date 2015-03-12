@@ -4,29 +4,13 @@ import "package:react/react_client.dart";
 import 'dart:async';
 import 'dart:html';
 
-/*
-var RxReact = require('rx-react');
-var Rx = require('rx');
-
-class MyComponent extends RxReact.Component {
-  getStateStream() {
-    return Rx.Observable.interval(1000).map(function (interval) {
-      return {
-        secondsElapsed: interval
-      };
-    });
-  }
-
-  render() {
-    var secondsElapsed = this.state? this.state.secondsElapsed : 0;
-    return (
-      <div>Seconds Elapsed: {secondsElapsed}</div>
-    );
-  }
-}
-*/
-
 class MyComponent extends StreamComponent {
+  
+  MyComponent() {
+    onMounted.listen((_) => print('didmount'));
+    onUnmounted.listen((_) => print('unmounted'));
+    propsStream.listen(print);
+  }
   
   get stateStream => new Stream.periodic(new Duration(seconds: 1), (interval) => {
     'secondsElapsed' : interval
@@ -40,12 +24,32 @@ class MyComponent extends StreamComponent {
     ]);
   }
 }
-var simpleComponent = react.registerComponent(() => new MyComponent());
+MyComponent c = new MyComponent();
+var simpleComponent = react.registerComponent(() => c);
 
 void main() {
   setClientConfiguration();
   var mountedNode = querySelector('#content');
   
-  react.render(simpleComponent({}), mountedNode);
+  var propsButton = (querySelector('#setprops') as ButtonElement);
+  propsButton.disabled = true;
+    
+  querySelector('#mount').onClick.listen(
+    (_) { 
+//      var c = (simpleComponent({}) as MyComponent);
+      react.render(simpleComponent({'id': 'red'}), mountedNode);
+//      c.props
+//      c.callMethod('setProps', [{}]);
+      propsButton.disabled = false;
+      propsButton.onClick.listen((_) {
+        c.props['class'] = 'red';
+      });
+    });
+    
+  querySelector('#unmount').onClick.listen(
+    (_) => react.unmountComponentAtNode(mountedNode));
   
+//  simpleComponent.props['class'] = 'red';
+
+//  react.render(simpleComponent({}), mountedNode);
 }

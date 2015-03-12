@@ -28,5 +28,5 @@ void main() {
     
                     
   querySelector('#unmount').onClick.listen(
-      (_) => react.unmountComponentAtNode(mountedNode));
+    (_) => react.unmountComponentAtNode(mountedNode));
 }

@@ -9,7 +9,7 @@ import 'package:react/react.dart' as react;
 import "package:react/react_client.dart";
 import "dart:html";
 
-class MyElement extends react.Component with StreamComponent {
+class MyElement extends StreamComponent {
   
   
   
