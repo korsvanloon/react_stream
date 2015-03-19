@@ -3,6 +3,7 @@ version: 0.0.1
 description: A library useful for applications or for sharing on pub.dartlang.org.
 dependencies:
   observe: any
+#  react: any
   react:
     path: /Users/korsvanloon/dart/react-dart
 dev_dependencies:

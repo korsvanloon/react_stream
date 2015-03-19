@@ -9,7 +9,7 @@ class MyComponent extends StreamComponent {
   MyComponent() {
     onMounted.listen((_) => print('didmount'));
     onUnmounted.listen((_) => print('unmounted'));
-    propsStream.listen(print);
+    propsStream.listen(print); // doesn't work
   }
   
   get stateStream => new Stream.periodic(new Duration(seconds: 1), (interval) => {
@@ -24,8 +24,7 @@ class MyComponent extends StreamComponent {
     ]);
   }
 }
-MyComponent c = new MyComponent();
-var simpleComponent = react.registerComponent(() => c);
+var simpleComponentFactory = react.registerComponent(() => new MyComponent());
 
 void main() {
   setClientConfiguration();
@@ -33,23 +32,28 @@ void main() {
   
   var propsButton = (querySelector('#setprops') as ButtonElement);
   propsButton.disabled = true;
+  
+  
+  var input = react.render(react.input({"ref":"myInput"}), querySelector("#test"));
+  
+//  input.focus();
+  print(input);
     
   querySelector('#mount').onClick.listen(
     (_) { 
-//      var c = (simpleComponent({}) as MyComponent);
-      react.render(simpleComponent({'id': 'red'}), mountedNode);
-//      c.props
-//      c.callMethod('setProps', [{}]);
+      var props = {'text' : 'something'};
+      
+      MyComponent c = react.render(simpleComponentFactory(props), mountedNode);
+      
+      
       propsButton.disabled = false;
       propsButton.onClick.listen((_) {
-        c.props['class'] = 'red';
+        c.setProps({'text': 'something else'} );
       });
     });
     
-  querySelector('#unmount').onClick.listen(
-    (_) => react.unmountComponentAtNode(mountedNode));
-  
-//  simpleComponent.props['class'] = 'red';
-
-//  react.render(simpleComponent({}), mountedNode);
+  querySelector('#unmount').onClick.listen((_)  {
+    react.unmountComponentAtNode(mountedNode);
+    propsButton.disabled = true;
+  });  
 }

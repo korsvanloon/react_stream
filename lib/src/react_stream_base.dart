@@ -23,6 +23,8 @@ abstract class StreamComponent extends Component {
   Stream get onUpdated => _onUpdatedController.stream;
   Stream get propsStream => _onReceivePropsController.stream;
   
+  setProps(props) => _onReceivePropsController.add(props);
+  
   @override
   componentDidMount(rootNode) {
     _onMountedController.add(rootNode);
@@ -31,12 +33,13 @@ abstract class StreamComponent extends Component {
   @override
   componentWillMount() {
     _onMountingController.add('');
+    _onReceivePropsController.add({});
   }
   
   @override
   componentWillUnmount() {
     _onUnmountedController.add('');
-    _onReceivePropsController.close();
+//    _onReceivePropsController.close();
     if(stateStream != null) {
       _stateSubscription.cancel();
     }
