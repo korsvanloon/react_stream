@@ -134,7 +134,7 @@ _toJs(tree) {
   if (tree is ReactElement) {
     return tree.toJs();
   }
-  if (tree is List) {
+  if (tree is Iterable) {
     return new JsObject.jsify(tree.map(_toJs));
   }
   return tree;

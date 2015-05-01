@@ -38,7 +38,7 @@ class InputComponent extends ReactComponent {
 
 main() {
 //  globalEvent$.listen((e) => print('global ${e.target}'));
-  globalEvent$.where((e) => e is MessageEvent).listen((e) => print('global ${e.message}'));
+  globalEvent$.where((e) => e is MessageEvent).listen((e) => print('global ${e.text}'));
   globalEvent$.listen((e) => print('global ${e.type}'));
   
   var container = document.querySelector('#container');

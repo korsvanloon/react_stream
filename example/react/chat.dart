@@ -3,28 +3,27 @@ import 'dart:html';
 import 'dart:async';
 
 class MessageEvent extends SyntheticEvent {
-  MessageEvent(this.message, this.owner, SyntheticEvent event) : super.fromEvent(event);
+  MessageEvent(this.text, this.owner, SyntheticEvent event) : super.fromEvent(event);
 
-  String message;
+  String text;
   String owner;
 }
 
 class InputComponent extends ReactComponent {
   InputComponent(this.owner) : super({}) {
     var s = _input.keyboard$
-          .where((e) => e.keyCode == KeyCode.ENTER)
-          .map((e) => new MessageEvent(text, owner, e));
+          .where((e) => e.keyCode == KeyCode.ENTER && e.target.value != '')
+          .map((e) => new MessageEvent(e.target.value, owner, e));
     
+    globalEventCtrl.addStream(s);
+
     s.listen((e) {
-      text = e.target.value;
       e.target.value = '';
       messages.add(e);
       repaint();
     });
     
-    globalEventCtrl.addStream(s);
   }
-  String text = '';
   String owner;
   List<MessageEvent> messages = new List();
   
@@ -34,8 +33,8 @@ class InputComponent extends ReactComponent {
   ReactElement render() {
     var i = 0;
     return 
-    div({}, [
-      div({}, messages.map((m) => div({'key': i++}, m.message))),
+    div({'key':'sfsdf'}, [
+      div({'key':'asdf'}, messages.map((m) => div({'key': '${i++}'}, m.text))),
       _input
     ]);
   }
@@ -62,7 +61,7 @@ class Notification extends ReactComponent {
 main() {
   
   var inputComp = new InputComponent('Kors');
-  globalEvent$.where((e) => e is MessageEvent).listen((e) => print(e.message));
+  globalEvent$.where((e) => e is MessageEvent).listen((e) => print(e.text));
   
 //  inputComp.message$.listen((e) => print(e.message));
   
