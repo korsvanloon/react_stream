@@ -1,0 +1,22 @@
+.me {
+  text-align: right;
+}
+.panel-body .message {
+  margin-top: 5px;  
+}
+.panel-body .message .text {
+  border-radius: 5px;
+  border: 1px solid lightgrey;
+  background-color: white;
+  padding: 3px;
+  margin: 0 5px;
+}
+.panel-body {
+  height: 250px;
+  overflow-y: scroll;
+  background: whitesmoke;
+}
+.app {
+  box-shadow: 0px 5px 17px 0px rgba(50, 50, 50, 0.73);
+  border-radius: 5px;
+}

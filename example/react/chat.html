@@ -7,16 +7,22 @@
     <title>todo</title>
     
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="chat.css">
     
   </head>
  
-  <body>   
-    <div id="app"></div>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div id="app1" class="col-sm-4"></div>
+        <div id="app2" class="col-sm-4"></div>
+        <div id="app3" class="col-sm-4"></div>
+      </div>
+    </div>
+
     <div id="notification"></div>
     
     <script src="https://fb.me/react-0.13.2.js"></script>
     <script type="application/dart" src="chat.dart"></script>
-    <!-- for this next line to work, your pubspec.yaml file must have a dependency on 'browser' -->
-    <script src="packages/browser/dart.js"></script>
   </body>
 </html>

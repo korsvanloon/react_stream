@@ -1,5 +1,44 @@
 part of react;
 
+//-------------------
+// GLOBAL EVENTS
+//-------------------
+
+
+//StreamController<GlobalEvent> _globalEventCtrl =
+//    new StreamController.broadcast();
+
+StreamController<Stream<GlobalEvent>> _globalEventCtrl =
+    new StreamController.broadcast();
+
+//Stream get globalEvent$ => _globalEventCtrl.stream;
+Stream<GlobalEvent> get globalEvent$ => _globalEventCtrl.stream.transform(new MergeAll());
+//Stream<GlobalEvent> globalEvent$ = new Stream.fromIterable([]).asBroadcastStream();
+
+
+class GlobalEvent {
+  GlobalEvent({this.details:const{}});
+
+  final Map details;
+}
+
+void publishEvent(GlobalEvent event) {
+  _globalEventCtrl.add(new Stream.fromIterable([event]).asBroadcastStream());
+}
+
+void publishStream(Stream<GlobalEvent> stream) {
+//  globalEvent$ = StreamExt.merge(globalEvent$, stream);
+//  _globalEventCtrl.addStream(stream, cancelOnError: false);
+//  print(stream);
+  _globalEventCtrl.add(stream);
+//  _globalEvent$ = globalEvent$.transform(new Merge(stream));
+}
+
+
+//-------------------
+// SYNTHETIC EVENTS
+//-------------------
+
 class SyntheticEvent {
   final bool bubbles, cancelable, defaultPrevented, isTrusted;
   final num eventPhase, timeStamp;
