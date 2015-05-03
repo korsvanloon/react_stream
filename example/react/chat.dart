@@ -7,7 +7,7 @@ class Message extends GlobalEvent {
   final User owner;
   final List<User> receivers;
   final String text;
-  
+
   Message(this.owner, this.receivers, this.text);
   
   toString() => 'from $owner, to $receivers: $text';
@@ -69,8 +69,7 @@ class ChatboxComponent extends ReactComponent {
     
     var enter$ = _input.keyboard$
           .where((e) => e.keyCode == KeyCode.ENTER && e.target.value != '');
-    
-
+   
     lifeCycle$.where((e) => e is WillMountEvent).listen((onData) {
       globalEvent$.listen((m) {
         messages.add(m);
@@ -79,19 +78,25 @@ class ChatboxComponent extends ReactComponent {
       }); 
     });
     
-    lifeCycle$.where((e) => e is DidMountEvent).listen((onData) {
-//      publishStream(_input.focus$.map((e) 
-//          => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
-      
-    });
+    publishStream(_input.focus$.map((e) 
+        => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
+   
     
-
+    publishStream(_input.keyboard$.map((e)
+        => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
+    
     enter$.listen((e) {
       text = e.target.value;
       publishEvent(new Message(owner, receivers, e.target.value));
       e.target.value = '';
     });
-  }
+    
+    globalEvent$.where((e) => e.details.containsKey('isTyping'))
+          .listen((e) {
+          _updateString(e);
+    });
+
+ }
   
   User owner;
   List<User> receivers;
@@ -100,9 +105,15 @@ class ChatboxComponent extends ReactComponent {
   DomElement _body;
   
   DomElement _input = input(className:'form-control', listenTo:['onKeyUp', 'onFocus']);
+  String _typingString = "";
   
   scrollToBottom() {
 //    _body.renderedNode.scrollTop = _body.renderedNode.scrollHeight;
+  }
+   
+  _updateString(e) {
+    _typingString = e.details['owner'].name + " is typing...";
+    repaint();
   }
   
   DomElement _closeBtn = button(className:'close', children:'×', listenTo:['onClick']);
@@ -126,6 +137,7 @@ class ChatboxComponent extends ReactComponent {
         receivers.join(', '),
         _closeBtn
       ]),
+      span(className:'glyphicon glyphicon-pencil', children: '$_typingString'),
       _body,
       _input
     ]);
@@ -147,8 +159,7 @@ class Notification extends ReactComponent {
     });
   }
   User owner;
-//  List<String> friends;
-  
+
   num _counter = 0; 
   
   _update(c) {
