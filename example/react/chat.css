@@ -3,6 +3,22 @@
   box-shadow: 0px 5px 17px 0px rgba(50, 50, 50, 0.73);
   border-radius: 5px;
 }
+.notification {
+  margin-left: 20px;
+}
+.notification .glyphicon {
+  font-size: 16px;
+  color: lightgrey;
+}
+.notification .counter {
+  position: relative;
+  left: -11px;
+  color: white;
+  background-color: grey;
+  border-radius: 5px;
+  padding: 0 4px;
+  font-size: 10px;
+}
 
 /*Chatbox Component*/
 .panel-body {

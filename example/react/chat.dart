@@ -76,8 +76,8 @@ class ChatboxComponent extends ReactComponent {
         repaint();
         scrollToBottom();
       }); 
-      publishStream(_input.keyboard$.map((e)
-          => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
+//      publishStream(_input.keyboard$.map((e)
+//          => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
     });
     
     publishStream(_input.focus$.map((e) 
@@ -168,9 +168,10 @@ class Notification extends ReactComponent {
 
   @override
   ReactElement render() {
-    return button(className:'btn btn-default', children:
-      span(className:'glyphicon glyphicon-comment', children:' $_counter')
-    );
+    return span(className:'notification', children: [
+      span(className:'glyphicon glyphicon-comment'),
+      span(className:'counter', children:' $_counter')
+    ]);
   }
 }
 
