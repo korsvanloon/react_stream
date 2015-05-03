@@ -76,14 +76,13 @@ class ChatboxComponent extends ReactComponent {
         repaint();
         scrollToBottom();
       }); 
+      publishStream(_input.keyboard$.map((e)
+          => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
     });
     
     publishStream(_input.focus$.map((e) 
         => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
    
-    
-    publishStream(_input.keyboard$.map((e)
-        => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
     
     enter$.listen((e) {
       text = e.target.value;
