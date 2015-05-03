@@ -74,19 +74,19 @@ class ChatboxComponent extends ReactComponent {
       publishStream(_input.keyboard$.map((e) 
                   => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
       
+      publishStream(_input.focus$.map((e) 
+                   => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
+        
+         
       globalEvent$.listen((m) {
-        if(!m.details.containsKey('isTyping')) {
+        if(m is Message) {
           messages.add(m);
           repaint();
           scrollToBottom();
         }
       });
     });
-    
-    publishStream(_input.focus$.map((e) 
-        => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
    
-    
     enter$.listen((e) {
       text = e.target.value;
       publishEvent(new Message(owner, receivers, e.target.value));
@@ -151,13 +151,14 @@ class Notification extends ReactComponent {
     
     lifeCycle$.where((e) => e is DidMountEvent).listen((_) {
       
-      globalEvent$.where((e) => e is Message).where((e) => owner.friends.map((f) => f.name).contains(e.owner))
-      .listen((e) => _update(_counter + 1));
-      
+      globalEvent$.where((e) => e is Message).where((e) => e.receivers.contains(owner))
+                  .listen((e) => _update(_counter + 1));
+    
       globalEvent$.where((e) => e.details.containsKey('readMessages') 
                              && e.details['owner'] == owner.name)
-        .listen((e) => _update(0));
-      
+                  .listen((e) => _update(0));
+  
+      globalEvent$.where((e) => e.details.containsKey('readMessages')).listen((e) => print(e.details));
     });
   }
   User owner;
@@ -186,7 +187,8 @@ main() {
   ani.friends = [kors, georgi];
   georgi.friends = [kors, ani];
   
-  globalEvent$.listen((e) => print(e));
+//  globalEvent$.listen((e) => print(e));
+//  globalEvent$.where((e) => e is Message).listen((e) => print(e.toString()));
   
   var app1 = new ChatAppComponent(kors);  
   render(app1, document.querySelector('#app1'));
