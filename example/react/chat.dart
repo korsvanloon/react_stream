@@ -7,7 +7,7 @@ class Message extends GlobalEvent {
   final String owner;
   final List<String> receivers;
   final String text;
-  
+
   Message(this.owner, this.receivers, this.text);
   
   toString() => 'from $owner, to $receivers: $text';
@@ -41,8 +41,7 @@ class ChatboxComponent extends ReactComponent {
     
     var enter$ = _input.keyboard$
           .where((e) => e.keyCode == KeyCode.ENTER && e.target.value != '');
-    
-
+   
     lifeCycle$.where((e) => e is WillMountEvent).listen((onData) {
       globalEvent$.listen((m) {
         messages.add(m);
@@ -53,13 +52,24 @@ class ChatboxComponent extends ReactComponent {
     
     publishStream(_input.focus$.map((e) 
         => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
+   
+    
+    publishStream(_input.keyboard$.map((e)
+        => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
 
+    
     enter$.listen((e) {
       text = e.target.value;
       publishEvent(new Message(owner, receivers, e.target.value));
       e.target.value = '';
     });
-  }
+    
+    globalEvent$.where((e) => e.details.containsKey('isTyping'))
+          .listen((e) {
+          _updateString(e);
+    });
+
+ }
   
   String owner;
   List<String> receivers;
@@ -68,10 +78,16 @@ class ChatboxComponent extends ReactComponent {
   DomElement _body;
   
   DomElement _input = input(className:'form-control', listenTo:['onKeyUp', 'onFocus']);
+  String _typingString = "";
   
   scrollToBottom() {
 //    _body.renderedNode.scrollTop = _body.renderedNode.scrollHeight;
   }
+   
+    _updateString(e) {
+      _typingString = e.details['owner'] + " is typing...";
+      repaint();
+    }
   
   @override
   ReactElement render() {
@@ -90,6 +106,7 @@ class ChatboxComponent extends ReactComponent {
     return 
     div(className: 'panel panel-primary', children: [
       div(className: 'panel-heading', children: receivers.join(', ')),
+      span(className:'glyphicon glyphicon-pencil', children: '$_typingString'),
       _body,
       _input
     ]);
@@ -105,6 +122,7 @@ class Notification extends ReactComponent {
                            && e.details['owner'] == owner)
       .listen((e) => _update(0));
   }
+  
   String owner;
   List<String> friends;
   
