@@ -4,8 +4,8 @@ import 'dart:async';
 import 'package:stream_transformers/stream_transformers.dart';
 
 class Message extends GlobalEvent {
-  final String owner;
-  final List<String> receivers;
+  final User owner;
+  final List<User> receivers;
   final String text;
   
   Message(this.owner, this.receivers, this.text);
@@ -13,26 +13,54 @@ class Message extends GlobalEvent {
   toString() => 'from $owner, to $receivers: $text';
 }
 
+class User {
+  String name;
+  String imageUrl;
+  List<User> friends = [];
+  User(this.name, this.imageUrl);
+  toString() => name;
+}
+
 class ChatAppComponent extends ReactComponent {
-  ChatAppComponent(this.user, this.friends) : super({});
-  String user;
-  List<String> friends;
+  ChatAppComponent(this.user) : super({});
+  User user;
 
   @override
   ReactElement render() {
-    var asdfas = new ChatboxComponent(user, friends);
     return div(className: 'app', children: [
         nav(className:'navbar navbar-default', children: [
           div(className:'navbar-header', children: 
             a(className: 'navbar-brand', children: 'FakeBook')  
           ),
-          p(className:'navbar-text', children: user),
-          div(className:'navbar-text ', children:
-            new Notification(user, friends)            
+          div(className:'navbar-left navbar-text', children: [
+            img(width:20, height:20, src:user.imageUrl),
+            '$user',
+            new Notification(user)            
+          ]
           )
         ]),
-        asdfas
+        new FriendListComponent(user),
+        new ChatboxComponent(user, user.friends)
     ]);
+  }
+}
+
+class FriendListComponent extends ReactComponent {
+  FriendListComponent(this.user) : super({});
+  User user;
+  
+  
+  @override
+  ReactElement render() {
+    return div(className:'friends', children:[
+      p(children:'Friends:'),
+      div(children: user.friends.map((f) =>
+        button(className:'btn btn-default', children:[
+          img(width:25, height:25, src:f.imageUrl),
+          f.name
+        ])
+      ))
+    ]); 
   }
 }
 
@@ -51,8 +79,12 @@ class ChatboxComponent extends ReactComponent {
       }); 
     });
     
-    publishStream(_input.focus$.map((e) 
-        => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
+    lifeCycle$.where((e) => e is DidMountEvent).listen((onData) {
+//      publishStream(_input.focus$.map((e) 
+//          => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
+      
+    });
+    
 
     enter$.listen((e) {
       text = e.target.value;
@@ -61,8 +93,8 @@ class ChatboxComponent extends ReactComponent {
     });
   }
   
-  String owner;
-  List<String> receivers;
+  User owner;
+  List<User> receivers;
   List<Message> messages = new List();
   
   DomElement _body;
@@ -73,23 +105,27 @@ class ChatboxComponent extends ReactComponent {
 //    _body.renderedNode.scrollTop = _body.renderedNode.scrollHeight;
   }
   
+  DomElement _closeBtn = button(className:'close', children:'×', listenTo:['onClick']);
+  
   @override
   ReactElement render() {
     _body = div(className: 'panel-body', children: messages.map((m) {
       return m.owner == owner ? 
           div(className: 'message me', children: [
             span(className:'text', children: m.text),
-            '[me]',
           ])
         : div(className: 'message friend', children: [
-          '[${m.owner}]',
+          img(width:25, height:25, src:m.owner.imageUrl),
           span(className:'text', children: m.text),
         ]); 
     }));
     
     return 
     div(className: 'panel panel-primary', children: [
-      div(className: 'panel-heading', children: receivers.join(', ')),
+      div(className: 'panel-heading', children: [
+        receivers.join(', '),
+        _closeBtn
+      ]),
       _body,
       _input
     ]);
@@ -97,16 +133,21 @@ class ChatboxComponent extends ReactComponent {
 }
 
 class Notification extends ReactComponent {  
-  Notification(this.owner, this.friends) : super({}) {
-    globalEvent$.where((e) => e is Message).where((e) => friends.contains(e.owner))
-    .listen((e) => _update(_counter + 1));
+  Notification(this.owner) : super({}) {
     
-    globalEvent$.where((e) => e.details.containsKey('readMessages') 
-                           && e.details['owner'] == owner)
-      .listen((e) => _update(0));
+    lifeCycle$.where((e) => e is DidMountEvent).listen((_) {
+      
+      globalEvent$.where((e) => e is Message).where((e) => owner.friends.map((f) => f.name).contains(e.owner))
+      .listen((e) => _update(_counter + 1));
+      
+      globalEvent$.where((e) => e.details.containsKey('readMessages') 
+                             && e.details['owner'] == owner.name)
+        .listen((e) => _update(0));
+      
+    });
   }
-  String owner;
-  List<String> friends;
+  User owner;
+//  List<String> friends;
   
   num _counter = 0; 
   
@@ -124,15 +165,23 @@ class Notification extends ReactComponent {
 }
 
 main() {
+  var kors = new User('Kors', 'image/kors.jpeg');
+  var ani = new User('Ani', 'image/ani.jpg');
+  var georgi = new User('Georgi', 'image/georgi.jpeg');
+  
+  kors.friends = [ani, georgi];
+  ani.friends = [kors, georgi];
+  georgi.friends = [kors, ani];
+  
   globalEvent$.listen((e) => print(e));
   
-  var app1 = new ChatAppComponent('Kors', ['Ani', 'Georgi']);  
+  var app1 = new ChatAppComponent(kors);  
   render(app1, document.querySelector('#app1'));
   
-  var app2 = new ChatAppComponent('Ani', ['Kors', 'Georgi']);  
+  var app2 = new ChatAppComponent(ani);  
   render(app2, document.querySelector('#app2'));
   
-  var app3 = new ChatAppComponent('Georgi', ['Ani', 'Kors']);  
+  var app3 = new ChatAppComponent(georgi);  
   render(app3, document.querySelector('#app3'));
   
 }
