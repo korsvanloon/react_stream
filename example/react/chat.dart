@@ -71,13 +71,17 @@ class ChatboxComponent extends ReactComponent {
           .where((e) => e.keyCode == KeyCode.ENTER && e.target.value != '');
    
     lifeCycle$.where((e) => e is WillMountEvent).listen((onData) {
+      publishStream(_input.keyboard$.map((e) 
+                  => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
+      
       globalEvent$.listen((m) {
-        messages.add(m);
-        repaint();
-        scrollToBottom();
-      }); 
-//      publishStream(_input.keyboard$.map((e)
-//          => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
+
+        if(!m.details.containsKey('isTyping')) {
+          messages.add(m);
+          repaint();
+          scrollToBottom();
+        }
+      });
     });
     
     publishStream(_input.focus$.map((e) 
@@ -90,11 +94,11 @@ class ChatboxComponent extends ReactComponent {
       e.target.value = '';
     });
     
-    globalEvent$.where((e) => e.details.containsKey('isTyping'))
-          .listen((e) {
-          _updateString(e);
-    });
-
+    globalEvent$.where((e) => e.details.containsKey('isTyping')
+                            && receivers.contains(e.details['owner']))
+                    .listen((e) {
+                    _updateString(e);
+              });
  }
   
   User owner;
@@ -111,7 +115,7 @@ class ChatboxComponent extends ReactComponent {
   }
    
   _updateString(e) {
-    _typingString = e.details['owner'].name + " is typing...";
+    _typingString = " " + e.details['owner'].name + " is typing...";
     repaint();
   }
   
