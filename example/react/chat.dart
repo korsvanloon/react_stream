@@ -69,6 +69,7 @@ class ChatboxComponent extends ReactComponent {
     
     var enter$ = _input.keyboard$
           .where((e) => e.keyCode == KeyCode.ENTER && e.target.value != '');
+
    
     lifeCycle$.where((e) => e is WillMountEvent).listen((onData) {
       publishStream(_input.keyboard$.map((e) 
@@ -78,6 +79,9 @@ class ChatboxComponent extends ReactComponent {
                    => new GlobalEvent(details:{'owner': owner, 'readMessages': true})));
         
          
+      publishStream(_input.keyboard$.transform(new Debounce(new Duration(milliseconds:1000)))
+      .map((e) => new GlobalEvent(details:{'owner': owner, 'isTyping': false})));
+      
       globalEvent$.listen((m) {
         if(m is Message) {
           messages.add(m);
@@ -95,9 +99,9 @@ class ChatboxComponent extends ReactComponent {
     
     globalEvent$.where((e) => e.details.containsKey('isTyping')
                             && receivers.contains(e.details['owner']))
-                    .listen((e) {
-                    _updateString(e);
-              });
+    .listen((e) {
+      _updateString(e.details['owner'], e.details['isTyping']);
+    });
  }
   
   User owner;
@@ -113,8 +117,8 @@ class ChatboxComponent extends ReactComponent {
 //    _body.renderedNode.scrollTop = _body.renderedNode.scrollHeight;
   }
    
-  _updateString(e) {
-    _typingString = " " + e.details['owner'].name + " is typing...";
+  _updateString(owner, isTyping) {
+    _typingString = isTyping ? " " + owner.name + " is typing..." : '';
     repaint();
   }
   
@@ -149,16 +153,15 @@ class ChatboxComponent extends ReactComponent {
 class Notification extends ReactComponent {  
   Notification(this.owner) : super({}) {
     
-    lifeCycle$.where((e) => e is DidMountEvent).listen((_) {
+    lifeCycle$.where((e) => e is WillMountEvent).listen((_) {
       
       globalEvent$.where((e) => e is Message).where((e) => e.receivers.contains(owner))
                   .listen((e) => _update(_counter + 1));
     
       globalEvent$.where((e) => e.details.containsKey('readMessages') 
-                             && e.details['owner'] == owner.name)
+                             && e.details['owner'] == owner)
                   .listen((e) => _update(0));
   
-      globalEvent$.where((e) => e.details.containsKey('readMessages')).listen((e) => print(e.details));
     });
   }
   User owner;
@@ -186,9 +189,6 @@ main() {
   kors.friends = [ani, georgi];
   ani.friends = [kors, georgi];
   georgi.friends = [kors, ani];
-  
-//  globalEvent$.listen((e) => print(e));
-//  globalEvent$.where((e) => e is Message).listen((e) => print(e.toString()));
   
   var app1 = new ChatAppComponent(kors);  
   render(app1, document.querySelector('#app1'));
