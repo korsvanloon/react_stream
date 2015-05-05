@@ -34,31 +34,37 @@ class ChatAppComponent extends ReactComponent {
 //    lifeCycle$.where((e) => e is WillUnmountEvent);
     
     globalEvent$.where((e) => e is CloseEvent && e.toBeClosed == chatbox).listen((e) {
-      shouldDisplayChatbox = false;
+      _shouldDisplayChatbox = false;
       repaint(); 
+    });
+    
+    _button.mouse$.listen((e) {
+      _shouldDisplayChatbox = true;
+      repaint();
     });
   }
   User user;
-  bool shouldDisplayChatbox  = true;
+  bool _shouldDisplayChatbox  = true;
   List<ChatboxComponent> chatboxes = [];
   ChatboxComponent chatbox;
+  DomElement _button = button(className:'btn btn-default', children:'open chatbox', listenTo:['onClick']);
   
   @override
   ReactElement render() {
     return div(className: 'app', children: [
-        nav(className:'navbar navbar-default', children: [
-          div(className:'navbar-header', children: 
-            a(className: 'navbar-brand', children: 'FakeBook')  
-          ),
-          div(className:'navbar-left navbar-text', children: [
-            img(width:20, height:20, src:user.imageUrl),
-            '$user',
-            new Notification(user)            
-          ]
-          )
-        ]),
-        new FriendListComponent(user),
-        shouldDisplayChatbox ? chatbox : null
+      nav(className:'navbar navbar-default', children: [
+        div(className:'navbar-header', children: 
+          a(className: 'navbar-brand', children: 'FakeBook')  
+        ),
+        div(className:'navbar-left navbar-text', children: [
+          img(width:20, height:20, src:user.imageUrl),
+          '$user',
+          new Notification(user)            
+        ]
+        )
+      ]),
+      new FriendListComponent(user),
+      _shouldDisplayChatbox ? chatbox : _button
     ]);
   }
 }
@@ -103,11 +109,12 @@ class ChatboxComponent extends ReactComponent {
       
       publishStream(_closeBtn.mouse$.map((e) => new CloseEvent(this)));
       
-      globalEvent$.where((e) => e is Message).listen((m) {
-        messages.add(m);
-//        scrollToBottom();
-        repaint();
-      });
+    });
+    
+    globalEvent$.where((e) => e is Message).listen((m) {
+      messages.add(m);
+      scrollToBottom();
+      repaint();
     });
    
     enter$.listen((e) {
@@ -121,12 +128,6 @@ class ChatboxComponent extends ReactComponent {
     .listen((e) {
       _updateString(e.details['owner'], e.details['isTyping']);
     });
-    
-    lifeCycle$.where((e) => e is DidUpdateEvent).listen((e) {
-      scrollToBottom();  
-    });
-    
-//    _closeBtn.mouse$.listen((e) {});
  }
   
   User owner;
