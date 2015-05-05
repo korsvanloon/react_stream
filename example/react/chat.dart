@@ -1,5 +1,5 @@
 import 'package:react_stream/react.dart';
-import 'dart:html';
+import 'dart:html' as html;
 import 'dart:async';
 import 'package:stream_transformers/stream_transformers.dart';
 
@@ -13,6 +13,12 @@ class Message extends GlobalEvent {
   toString() => 'from $owner, to $receivers: $text';
 }
 
+class CloseEvent extends GlobalEvent {
+  CloseEvent(this.toBeClosed);
+  
+  ReactComponent toBeClosed;
+}
+
 class User {
   String name;
   String imageUrl;
@@ -22,9 +28,21 @@ class User {
 }
 
 class ChatAppComponent extends ReactComponent {
-  ChatAppComponent(this.user) : super({});
+  ChatAppComponent(this.user) : super({}) {
+    chatbox = new ChatboxComponent(user, user.friends);
+    
+//    lifeCycle$.where((e) => e is WillUnmountEvent);
+    
+    globalEvent$.where((e) => e is CloseEvent && e.toBeClosed == chatbox).listen((e) {
+      shouldDisplayChatbox = false;
+      repaint(); 
+    });
+  }
   User user;
-
+  bool shouldDisplayChatbox  = true;
+  List<ChatboxComponent> chatboxes = [];
+  ChatboxComponent chatbox;
+  
   @override
   ReactElement render() {
     return div(className: 'app', children: [
@@ -40,7 +58,7 @@ class ChatAppComponent extends ReactComponent {
           )
         ]),
         new FriendListComponent(user),
-        new ChatboxComponent(user, user.friends)
+        shouldDisplayChatbox ? chatbox : null
     ]);
   }
 }
@@ -68,11 +86,11 @@ class ChatboxComponent extends ReactComponent {
   ChatboxComponent(this.owner, this.receivers) : super({}) {
     
     var enter$ = _input.keyboard$
-          .where((e) => e.keyCode == KeyCode.ENTER && e.target.value != '');
+          .where((e) => e.keyCode == html.KeyCode.ENTER && e.target.value != '');
 
    
     lifeCycle$.where((e) => e is WillMountEvent).listen((onData) {
-      publishStream(_input.keyboard$.map((e) 
+      publishStream(_input.keyboard$.where((e) => e.keyCode != html.KeyCode.ENTER).map((e) 
                   => new GlobalEvent(details:{'owner': owner, 'isTyping': true})));    
       
       publishStream(_input.focus$.map((e) 
@@ -80,12 +98,15 @@ class ChatboxComponent extends ReactComponent {
         
          
       publishStream(_input.keyboard$.transform(new Debounce(new Duration(milliseconds:1000)))
+      .transform(new Merge(_input.keyboard$.where((e) => e.keyCode == html.KeyCode.ENTER)))
       .map((e) => new GlobalEvent(details:{'owner': owner, 'isTyping': false})));
+      
+      publishStream(_closeBtn.mouse$.map((e) => new CloseEvent(this)));
       
       globalEvent$.where((e) => e is Message).listen((m) {
         messages.add(m);
+//        scrollToBottom();
         repaint();
-        scrollToBottom();
       });
     });
    
@@ -100,6 +121,12 @@ class ChatboxComponent extends ReactComponent {
     .listen((e) {
       _updateString(e.details['owner'], e.details['isTyping']);
     });
+    
+    lifeCycle$.where((e) => e is DidUpdateEvent).listen((e) {
+      scrollToBottom();  
+    });
+    
+//    _closeBtn.mouse$.listen((e) {});
  }
   
   User owner;
@@ -112,7 +139,7 @@ class ChatboxComponent extends ReactComponent {
   String _typingString = "";
   
   scrollToBottom() {
-//    _body.renderedNode.scrollTop = _body.renderedNode.scrollHeight;
+    _body.renderedNode.scrollTop = _body.renderedNode.scrollHeight;
   }
    
   _updateString(owner, isTyping) {
@@ -175,7 +202,7 @@ class Notification extends ReactComponent {
   ReactElement render() {
     return span(className:'notification', children: [
       span(className:'glyphicon glyphicon-comment'),
-      span(className:'counter', children:' $_counter')
+      _counter > 0 ? span(className:'counter', children:'$_counter') : null
     ]);
   }
 }
@@ -185,17 +212,20 @@ main() {
   var ani = new User('Ani', 'image/ani.jpg');
   var georgi = new User('Georgi', 'image/georgi.jpeg');
   
+  html.DivElement div = new html.DivElement();
+  div.scrollTop = div.scrollHeight;
+  
   kors.friends = [ani, georgi];
   ani.friends = [kors, georgi];
   georgi.friends = [kors, ani];
   
   var app1 = new ChatAppComponent(kors);  
-  render(app1, document.querySelector('#app1'));
+  render(app1, html.document.querySelector('#app1'));
   
   var app2 = new ChatAppComponent(ani);  
-  render(app2, document.querySelector('#app2'));
+  render(app2, html.document.querySelector('#app2'));
   
   var app3 = new ChatAppComponent(georgi);  
-  render(app3, document.querySelector('#app3'));
+  render(app3, html.document.querySelector('#app3'));
   
 }

@@ -44,7 +44,6 @@ abstract class ReactComponent extends ReactElement {
         'createElement', [jsClass, new JsObject.jsify(props), _toJs(children)]);
   }
   
-//  void repaint() => _jsClass.callMethod('setState', [new JsObject.jsify({})]);
   void repaint() => _repaint();
 
   ReactElement render();
@@ -72,7 +71,7 @@ class DomElement extends ReactElement {
         'createElement', [tagName, new JsObject.jsify(props), _toJs(children)]);
   }
   
-//  HtmlElement get renderedNode => _js['_owner']['_instance'].callMethod('getDOMNode', []);
+  HtmlElement get renderedNode => _js['_owner']['_instance'].callMethod('getDOMNode', []);
 
   _addHandler(String name, StreamController ctrl) {
     if (_keyboardEvents.contains(name)) {
