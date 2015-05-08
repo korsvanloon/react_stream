@@ -60,7 +60,7 @@ class DomElement extends ReactElement {
   Stream<SyntheticFormEvent> get form$ => _uiEvent$.where((e) => e is SyntheticFormEvent);
   Stream<SyntheticMouseEvent> get mouse$ => _uiEvent$.where((e) => e is SyntheticMouseEvent);
       
-  DomElement(String tagName, Map props, children, List<String> listenTo) {
+  DomElement(String tagName, Map props, content, List<String> listenTo) {
     _uiEventCtrl = new StreamController.broadcast();
 
     if (listenTo != null) {
@@ -68,19 +68,20 @@ class DomElement extends ReactElement {
     }
 
     _js = _react.callMethod(
-        'createElement', [tagName, new JsObject.jsify(props), _toJs(children)]);
+        'createElement', [tagName, new JsObject.jsify(props), _toJs(content)]);
   }
   
   HtmlElement get renderedNode => _js['_owner']['_instance'].callMethod('getDOMNode', []);
 
   _addHandler(String name, StreamController ctrl) {
-    if (_keyboardEvents.contains(name)) {
+    var _name = name.split('Capture')[0];
+    if (_keyboardEvents.contains(_name)) {
       return (e, [id]) => ctrl.add(new SyntheticKeyboardEvent.fromJs(e));
-    } else if (_focusEvents.contains(name)) {
+    } else if (_focusEvents.contains(_name)) {
       return (e, [id]) => ctrl.add(new SyntheticFocusEvent.fromJs(e));
-    } else if (_formEvents.contains(name)) {
+    } else if (_formEvents.contains(_name)) {
       return (e, [id]) => ctrl.add(new SyntheticFormEvent.fromJs(e));
-    } else if (_mouseEvents.contains(name)) {
+    } else if (_mouseEvents.contains(_name)) {
       return (e, [id]) => ctrl.add(new SyntheticMouseEvent.fromJs(e));
     }
   }
@@ -88,32 +89,39 @@ class DomElement extends ReactElement {
 
 //typedef SyntheticEvent EventMap(SyntheticEvent e);
 
-DomElement button({String className, Function click, children, List<String> listenTo}) =>
-    new DomElement('button', {'className': className, 'onClick': click}, children, listenTo);
+DomElement button({String className, Function click, content, List<String> listenTo}) =>
+    new DomElement('button', {'className': className, 'onClick': click}, content, listenTo);
 
-DomElement a({String className, String href:'#', children, List<String> listenTo}) =>
-    new DomElement('a', {'className': className, 'href': href}, children, listenTo);
+DomElement a({String className, String href:'#', content, List<String> listenTo}) =>
+    new DomElement('a', {'className': className, 'href': href}, content, listenTo);
 
-DomElement div({String className, children, List<String> listenTo}) =>
-    new DomElement('div', {'className': className}, children, listenTo);
+DomElement div({String className, content, List<String> listenTo}) =>
+    new DomElement('div', {'className': className}, content, listenTo);
 
-DomElement nav({String className, children, List<String> listenTo}) =>
-    new DomElement('nav', {'className': className}, children, listenTo);
+DomElement nav({String className, content, List<String> listenTo}) =>
+    new DomElement('nav', {'className': className}, content, listenTo);
 
-DomElement p({String className, children, List<String> listenTo}) =>
-    new DomElement('p', {'className': className}, children, listenTo);
+DomElement p({String className, content, List<String> listenTo}) =>
+    new DomElement('p', {'className': className}, content, listenTo);
 
-DomElement span({String className, children, List<String> listenTo}) =>
-    new DomElement('span', {'className': className}, children, listenTo);
+DomElement span({String className, content, List<String> listenTo}) =>
+    new DomElement('span', {'className': className}, content, listenTo);
 
-DomElement input({String className, children, List<String> listenTo}) =>
-    new DomElement('input', {'className': className}, children, listenTo);
+DomElement input({String className, content, List<String> listenTo}) =>
+    new DomElement('input', {'className': className}, content, listenTo);
 
-DomElement img({String className, String src, int width: 50, int height: 50, children, List<String> listenTo}) {
+DomElement label({String className, content, List<String> listenTo}) =>
+    new DomElement('label', {'className': className}, content, listenTo);
+
+DomElement checkbox({String className, name, bool checked, content, List<String> listenTo}) =>
+    new DomElement('input', {'className': className, 'type': 'checkbox', 'name': name, 'checked': checked}, 
+        content, listenTo);
+
+DomElement img({String className, String src, int width: 50, int height: 50, content, List<String> listenTo}) {
   if(src == null) {
     src = 'http://placehold.it/${width}x${height}';
   }
   
   return new DomElement('img', {'className': className, 'src': src, 'width': width, 'height': height}, 
-      children, listenTo);
+      content, listenTo);
 }

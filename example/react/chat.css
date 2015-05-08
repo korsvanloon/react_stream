@@ -21,6 +21,12 @@
 }
 
 /*Chatbox Component*/
+.panel-heading .online {
+  color: lightgreen;
+}
+.panel-heading .offline {
+  color:red;
+}
 .panel-body {
   height: 250px;
   overflow-y: scroll;
