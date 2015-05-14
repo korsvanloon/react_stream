@@ -5,5 +5,6 @@ dependencies:
   observe: any
   stream_ext: any
   stream_transformers: any
+  observe: any
 dev_dependencies:
   unittest: any

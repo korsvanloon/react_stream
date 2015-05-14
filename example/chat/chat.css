@@ -25,7 +25,7 @@
   color: lightgreen;
 }
 .panel-heading .offline {
-  color:red;
+  color:#ec971f;
 }
 .panel-body {
   height: 250px;

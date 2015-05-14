@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rune</title>
+</head>
+
+<body>
+<style>
+    body {
+        background-color: linen;
+        font-family: "Trebuchet MS", Helvetica, sans-serif;
+    }
+    #app {
+        margin: 0 auto;
+        width: 600px;
+    }
+
+    #keyboard {
+        font-family: "Lucida Console", Monaco, monospace;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    #keyboard div {
+        margin: 2px;
+    }
+
+    #keyboard div:nth-child(2) {
+        margin-left: 10px;
+    }
+
+    #keyboard div span {
+        display: inline-block;
+        padding: 5px 10px;
+        margin: 2px;
+        border: 1px solid grey;
+        background-color: #333333;
+        border-radius: 3px;
+        width: 12px;
+        line-height: 28px;
+        transition: background-color 200ms linear;;
+    }
+    #keyboard div span.highlight {
+        background-color: #0074C1;
+    }
+
+    textarea {
+        width: 500px;
+        height: 100px;
+        font-size: 18px;
+        border-radius: 15px;
+        border-color: tan;
+        padding: 10px;
+        outline: none;
+    }
+    #fragments {
+        padding: 10px;
+        font-size: 20px;
+    }
+    #fragments span {
+        margin: 0 4px;
+    }
+    #fragments .selected {
+        border-bottom: 2px solid #00B5AB;
+    }
+</style>
+
+<div id="app">
+    <div id="fragments"></div>
+    <div id="smartTextArea"></div>
+    <div id="languageSwitch"></div>
+    <div id="keyboard"></div>
+</div>
+
+<script src="https://fb.me/react-0.13.2.js"></script>
+<script type="application/dart" src="rosetta.dart"></script>
+<!-- for this next line to work, your pubspec.yaml file must have a dependency on 'browser' -->
+<!--<script src="packages/browser/dart.js"></script>-->
+</body>
+</html>

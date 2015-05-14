@@ -1,10 +1,10 @@
 part of react;
 
-/// Basic wrapper for Reacts virtual DOM nodes and component.
+/// Basic wrapper for Reacts virtual DOM nodes and Components.
 abstract class ReactElement {
   JsObject _js;
-  List<ReactElement> children = [];
-  String text = '';
+  List _children;
+  String _text = '';
 
   // TODO: convert to js from local properties
   JsObject toJs() {
@@ -18,7 +18,7 @@ abstract class ReactComponent extends ReactElement {
   Stream<LifeCycleEvent> get lifeCycle$ => _lifeCycleCtrl.stream;
   Function _repaint;
   
-  ReactComponent(Map props) {
+  ReactComponent([Map props = const{}]) {
     _lifeCycleCtrl = new StreamController.broadcast();
 
     var methods = {
@@ -26,8 +26,14 @@ abstract class ReactComponent extends ReactElement {
       'getInitialState': new JsFunction.withThis((jsThis) {
         _repaint = () => jsThis.callMethod('setState', [new JsObject.jsify({})]);
       }),
-      'componentWillMount': () => _lifeCycleCtrl.add(new WillMountEvent()),
-      'componentDidMount': () => _lifeCycleCtrl.add(new DidMountEvent()),
+      'componentWillMount': () {
+        _lifeCycleCtrl.add(new WillMountEvent()); 
+        ready();
+      },
+      'componentDidMount': () {
+        _lifeCycleCtrl.add(new DidMountEvent());
+        domReady();
+      },
       'componentWillReceiveProps':
           (newProps) => _lifeCycleCtrl.add(new WillReceivePropsEvent(newProps)),
       'componentWillUpdate': (jsThis, nextProps, nextState) =>
@@ -41,15 +47,21 @@ abstract class ReactComponent extends ReactElement {
         _react.callMethod('createClass', [new JsObject.jsify(methods)]);
     
     _js = _react.callMethod(
-        'createElement', [jsClass, new JsObject.jsify(props), _toJs(children)]);
+        'createElement', [jsClass, new JsObject.jsify({}), _toJs(_children)]);
+
   }
   
   void repaint() => _repaint();
+
+  void ready() {}
+  void domReady() {}
 
   ReactElement render();
 }
 
 class DomElement extends ReactElement {
+  final String tagName;
+  Map _props;
   StreamController<SyntheticEvent> _uiEventCtrl;
   
   Stream<SyntheticEvent> get _uiEvent$ =>
@@ -60,18 +72,51 @@ class DomElement extends ReactElement {
   Stream<SyntheticFormEvent> get form$ => _uiEvent$.where((e) => e is SyntheticFormEvent);
   Stream<SyntheticMouseEvent> get mouse$ => _uiEvent$.where((e) => e is SyntheticMouseEvent);
       
-  DomElement(String tagName, Map props, content, List<String> listenTo) {
+  DomElement(this.tagName, this._props, content, List<String> listenTo) {
     _uiEventCtrl = new StreamController.broadcast();
 
     if (listenTo != null) {
-      listenTo.forEach((s) => props[s] = _addHandler(s, _uiEventCtrl));
+      listenTo.toSet().forEach((s) => _props[s] = _addHandler(s, _uiEventCtrl));
     }
-
-    _js = _react.callMethod(
-        'createElement', [tagName, new JsObject.jsify(props), _toJs(content)]);
+    this.content = content;
   }
   
-  HtmlElement get renderedNode => _js['_owner']['_instance'].callMethod('getDOMNode', []);
+//  HtmlElement get renderedNode => _js['_owner']['_instance'].callMethod('getDOMNode', []);
+
+  get content => _children == null ? _text : _children;
+  set content(c) {
+    if(c is String) {
+      _children = null;
+      text = c;
+    }
+    else if(c is List) {
+      _text = '';
+      children = c;
+    }
+    else if(c is ReactElement) {
+      _text = '';
+      children = [c];
+    }
+    else {
+      _text = '';
+      _children = null;
+      _js = _react.callMethod('createElement', [tagName, new JsObject.jsify(_props), _toJs(c)]);
+    }
+  }
+
+  List get children => _children;
+  set children(List c) {
+    if(_text != '') throw '$this can only have either text or children';
+    _children = c;
+    _js = _react.callMethod('createElement', [tagName, new JsObject.jsify(_props), _toJs(c)]);
+  }
+
+  String get text => _text;
+  set text(String c) {
+    if(_children != null) throw '$this can only have either text or children';
+    _text = c;
+    _js = _react.callMethod('createElement', [tagName, new JsObject.jsify(_props), _toJs(c)]);
+  }
 
   _addHandler(String name, StreamController ctrl) {
     var _name = name.split('Capture')[0];
@@ -83,19 +128,36 @@ class DomElement extends ReactElement {
       return (e, [id]) => ctrl.add(new SyntheticFormEvent.fromJs(e));
     } else if (_mouseEvents.contains(_name)) {
       return (e, [id]) => ctrl.add(new SyntheticMouseEvent.fromJs(e));
+    } else {
+      throw 'Unknown handler: $name';
     }
   }
 }
 
-//typedef SyntheticEvent EventMap(SyntheticEvent e);
+class DomForm extends DomElement {
+  DomForm(String tagName, Map props, content, List<String> listenTo)
+    : super(tagName, props, content, listenTo..add('onChange')) {
 
-DomElement button({String className, Function click, content, List<String> listenTo}) =>
+    // Super hack, I can't access the native HtmlElement otherwise...
+    // I tried everything...
+    form$.first.then((e) {
+      native = e.target;
+    });
+  }
+
+  HtmlElement native;
+
+  String get value => native != null ? native.value : '';
+  set value(v) { if(native != null) native.value = v; }
+}
+
+DomElement button({String className, Function click, content, List<String> listenTo, Map<String, StreamController> listenTo2}) =>
     new DomElement('button', {'className': className, 'onClick': click}, content, listenTo);
 
 DomElement a({String className, String href:'#', content, List<String> listenTo}) =>
     new DomElement('a', {'className': className, 'href': href}, content, listenTo);
 
-DomElement div({String className, content, List<String> listenTo}) =>
+DomElement div({String className, content, List<String> listenTo, Map<String, StreamController> handle}) =>
     new DomElement('div', {'className': className}, content, listenTo);
 
 DomElement nav({String className, content, List<String> listenTo}) =>
@@ -107,21 +169,23 @@ DomElement p({String className, content, List<String> listenTo}) =>
 DomElement span({String className, content, List<String> listenTo}) =>
     new DomElement('span', {'className': className}, content, listenTo);
 
-DomElement input({String className, content, List<String> listenTo}) =>
-    new DomElement('input', {'className': className}, content, listenTo);
+DomForm input({String className, content, List<String> listenTo}) =>
+    new DomForm('input', {'className': className}, content, listenTo);
+
+DomForm textarea({String className, content, List<String> listenTo}) =>
+    new DomForm('textarea', {'className': className}, content, listenTo);
+
+DomForm checkbox({String className, name, bool checked, content, List<String> listenTo}) =>
+    new DomForm('input', {'className': className, 'type': 'checkbox', 'name': name, 'checked': checked},
+        content, listenTo);
 
 DomElement label({String className, content, List<String> listenTo}) =>
     new DomElement('label', {'className': className}, content, listenTo);
-
-DomElement checkbox({String className, name, bool checked, content, List<String> listenTo}) =>
-    new DomElement('input', {'className': className, 'type': 'checkbox', 'name': name, 'checked': checked}, 
-        content, listenTo);
 
 DomElement img({String className, String src, int width: 50, int height: 50, content, List<String> listenTo}) {
   if(src == null) {
     src = 'http://placehold.it/${width}x${height}';
   }
-  
   return new DomElement('img', {'className': className, 'src': src, 'width': width, 'height': height}, 
       content, listenTo);
 }

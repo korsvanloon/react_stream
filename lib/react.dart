@@ -18,9 +18,11 @@ bool unmountComponentAt(HtmlElement container) {
   return _react.callMethod('unmountComponentAtNode', [container]);
 }
 
-//HtmlElement findDomNode(ReactComponent component) {
-//  return _react.callMethod('findDOMNode', [component.toJs()]);
-//}
+HtmlElement _findDomNode(JsObject element) {
+  return _react.callMethod('findDOMNode', [element]);
+}
+
+JsObject get _refs => _react['refs'];
 
 JsObject _react = context['React'];
 

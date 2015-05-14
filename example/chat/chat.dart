@@ -47,7 +47,7 @@ class User {
 }
 
 class ChatAppComponent extends ReactComponent {
-  ChatAppComponent(this.user) : super({}) {
+  ChatAppComponent(this.user) {
     chatbox = new ChatboxComponent(user, user.friends);
     friendList = new FriendListComponent(user);
     
@@ -68,9 +68,16 @@ class ChatAppComponent extends ReactComponent {
       repaint();
     });
   }
+  
+  //TODO: is this a good idea?
+  List<Stream> publish() => [
+    chatbox.lifeCycle$
+      .where((e) => e is WillUnmountEvent || e is WillMountEvent)
+      .map((e) => new OnlineEvent(user, e is WillMountEvent))
+          
+  ];
   User user;
   bool _shouldDisplayChatbox  = true;
-  List<ChatboxComponent> chatboxes = [];
   ChatboxComponent chatbox;
   DomElement _button = button(className:'btn btn-default', content:'open chatbox', listenTo:['onClick']);
   FriendListComponent friendList;
@@ -96,7 +103,7 @@ class ChatAppComponent extends ReactComponent {
 }
 
 class FriendListComponent extends ReactComponent {
-  FriendListComponent(this.user) : super({}) {
+  FriendListComponent(this.user) {
     _checked = new Map.fromIterable(user.friends, value: (u) => false);
     
     
@@ -135,7 +142,7 @@ class FriendListComponent extends ReactComponent {
 }
 
 class ChatboxComponent extends ReactComponent {
-  ChatboxComponent(this.owner, this.receivers) : super({}) {
+  ChatboxComponent(this.owner, this.receivers) {
     
     var enter$ = _input.keyboard$
           .where((e) => e.keyCode == html.KeyCode.ENTER && e.target.value != '');
@@ -243,7 +250,7 @@ class ChatboxComponent extends ReactComponent {
 }
 
 class Notification extends ReactComponent {  
-  Notification(this.owner) : super({}) {
+  Notification(this.owner) {
     
     lifeCycle$.where((e) => e is WillMountEvent).listen((_) {
       
