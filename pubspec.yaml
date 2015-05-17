@@ -6,5 +6,8 @@ dependencies:
   stream_ext: any
   stream_transformers: any
   observe: any
+  redstone: any
+  redstone_web_socket: any
+  frappe: any
 dev_dependencies:
   unittest: any

@@ -151,14 +151,32 @@ class DomForm extends DomElement {
   set value(v) { if(native != null) native.value = v; }
 }
 
-DomElement button({String className, Function click, content, List<String> listenTo, Map<String, StreamController> listenTo2}) =>
+DomElement button({String className, Function click, content, List<String> listenTo}) =>
     new DomElement('button', {'className': className, 'onClick': click}, content, listenTo);
 
 DomElement a({String className, String href:'#', content, List<String> listenTo}) =>
     new DomElement('a', {'className': className, 'href': href}, content, listenTo);
 
-DomElement div({String className, content, List<String> listenTo, Map<String, StreamController> handle}) =>
+DomElement div({String className, content, List<String> listenTo}) =>
     new DomElement('div', {'className': className}, content, listenTo);
+
+DomElement ul({String className, content, List<String> listenTo}) =>
+    new DomElement('ul', {'className': className}, content, listenTo);
+
+DomElement li({String id, String className, content, List<String> listenTo}) =>
+    new DomElement('li', {'id': id,'className': className}, content, listenTo);
+
+DomElement h1({String className, content, List<String> listenTo}) =>
+    new DomElement('h1', {'className': className}, content, listenTo);
+
+DomElement h2({String className, content, List<String> listenTo}) =>
+    new DomElement('h2', {'className': className}, content, listenTo);
+
+DomElement h3({String className, content, List<String> listenTo}) =>
+    new DomElement('h3', {'className': className}, content, listenTo);
+
+DomElement h4({String className, content, List<String> listenTo}) =>
+    new DomElement('h4', {'className': className}, content, listenTo);
 
 DomElement nav({String className, content, List<String> listenTo}) =>
     new DomElement('nav', {'className': className}, content, listenTo);
@@ -169,6 +187,9 @@ DomElement p({String className, content, List<String> listenTo}) =>
 DomElement span({String className, content, List<String> listenTo}) =>
     new DomElement('span', {'className': className}, content, listenTo);
 
+DomElement pre({String className, content, List<String> listenTo}) =>
+    new DomElement('pre', {'className': className}, content, listenTo);
+
 DomForm input({String className, content, List<String> listenTo}) =>
     new DomForm('input', {'className': className}, content, listenTo);
 
@@ -178,6 +199,9 @@ DomForm textarea({String className, content, List<String> listenTo}) =>
 DomForm checkbox({String className, name, bool checked, content, List<String> listenTo}) =>
     new DomForm('input', {'className': className, 'type': 'checkbox', 'name': name, 'checked': checked},
         content, listenTo);
+
+DomForm range({String className, name, bool checked, content, List<String> listenTo}) =>
+    new DomForm('input', {'className': className, 'type': 'range', 'name': name}, content, listenTo);
 
 DomElement label({String className, content, List<String> listenTo}) =>
     new DomElement('label', {'className': className}, content, listenTo);
