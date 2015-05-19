@@ -67,17 +67,19 @@
     #fragments .selected {
         border-bottom: 2px solid #00B5AB;
     }
+    .label {
+        font-weight: bold;
+    }
 </style>
 
 <div id="app">
-    <div id="fragments"></div>
-    <div id="smartTextArea"></div>
-    <div id="languageSwitch"></div>
+    <div id="detail"></div>
+    <button>Show hint</button>
     <div id="keyboard"></div>
 </div>
 
 <script src="packages/react_stream/react-0.13.2.js"></script>
-<script type="application/dart" src="rosetta.dart"></script>
+<script type="application/dart" src="runes.dart"></script>
 <!-- for this next line to work, your pubspec.yaml file must have a dependency on 'browser' -->
 <!--<script src="packages/browser/dart.js"></script>-->
 </body>

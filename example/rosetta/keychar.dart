@@ -12,12 +12,13 @@ class LatinChar implements KeyBoardChar {
 }
 
 class Rune implements KeyBoardChar{
-  String meaning;
   String letter;
   String char;
-  String name;
   String keyChar;
-  Rune(this.letter, this.char, this.keyChar, [this.name, this.meaning]);
+  String name;
+  String nameTranslation;
+  String meaning;
+  Rune(this.letter, this.char, this.keyChar, [this.name, this.nameTranslation, this.meaning]);
 }
 
 var staves = "ᚪᚫᛉᚨᛒᛍᛣᛤᚳᛢᛑᛞᛛᛀᛔᛂᛠᛖᚶᚧᚠᚵᚸᚷᛄᚻᚺᛨᛝᛜᛡᛁᛇᛃᚴᚲᛚᛅᚼᛘᚬᛦᛗᚾᚮᚯᚰᛕᚩᛟᛈᛩᚱᛆᛓᚽᛙᚿᚭᛌᛐᛧᛋᛊᛥᚦᛏᚢᚡᚥᚹᛪᚤᚣᛎ᛬᛫ᛮᛯᛰ᛭";
@@ -62,41 +63,37 @@ var latin = <LatinChar>[
 ];
 
 var elderFuthark = <Rune>[
-  new Rune('f', 'ᚠ', 'f', 'fehu'),
-  new Rune('u', 'ᚢ', 'u', 'uruz'),
-  new Rune('þ', 'ᚦ', 'v', 'thurisaz'),
-  new Rune('a', 'ᚨ', 'a', 'ansuz'),
-  new Rune('r', 'ᚱ', 'r', 'raidho'),
-  new Rune('k', 'ᚲ', 'k', 'kenaz'),
-  new Rune('g', 'ᚷ', 'g', 'gebo'),
-  new Rune('w', 'ᚹ', 'w', 'wunjo'),
+  new Rune('f', 'ᚠ', 'f', 'fehu', 'vee', 'rijkdom'),
+  new Rune('u', 'ᚢ', 'u', 'uruz', 'oeros', 'wilskracht'),
+  new Rune('þ', 'ᚦ', 'v', 'thurisaz', 'deurs (reus)', 'instinctieve kracht'),
+  new Rune('a', 'ᚨ', 'a', 'ansuz', 'ans (god)', 'voorspoed, vitaliteit'),
+  new Rune('r', 'ᚱ', 'r', 'raidho', 'rit', 'groei, beweging'),
+  new Rune('k', 'ᚲ', 'k', 'kaunan', 'kanker (gezwel)', 'sterfelijkheid, pijn'),
+  new Rune('g', 'ᚷ', 'g', 'gebo', 'gift', 'vrijgevigheid'),
+  new Rune('w', 'ᚹ', 'w', 'wunjo', 'vreugde', 'lol, ecstase'),
 
-  new Rune('h', 'ᚺ', 'h', 'hagalaz'),
-  new Rune('n', 'ᚾ', 'n', 'naudhiz'),
-  new Rune('i', 'ᛁ', 'i', 'isa'),
-  new Rune('j', 'ᛃ', 'j', 'jera'),
-  new Rune('ï', 'ᛇ', 'y', 'eiwaz'),
-  new Rune('p', 'ᛈ', 'p', 'perdhro'),
-  new Rune('z', 'ᛉ', 'z', 'algiz'),
-  new Rune('s', 'ᛊ', 's', 'sowulo'),
+  new Rune('h', 'ᚺ', 'h', 'hagalaz', 'hagel', 'vernietiging, chaos'),
+  new Rune('n', 'ᚾ', 'n', 'naudhiz', 'nood', 'onvervulde wens, moeilijke situatie'),
+  new Rune('i', 'ᛁ', 'i', 'isa', 'ijs', 'stagnatie, stilstand'),
+  new Rune('j', 'ᛃ', 'j', 'jera', 'jaar', 'oogst, beloning'),
+  new Rune('ï', 'ᛇ', 'y', 'eiwaz', 'ijf (taxus)', 'kracht, stabiliteit'),
+  new Rune('p', 'ᛈ', 'p', 'perdhro', 'perenboom', ''),
+  new Rune('z', 'ᛉ', 'z', 'elhaz', 'eland', 'bescherming, verdediging'),
+  new Rune('s', 'ᛊ', 's', 'sowulo', 'zon', 'succes, troost'),
 
-  new Rune('t', 'ᛏ', 't', 'tiwaz'),
-  new Rune('b', 'ᛒ', 'b', 'berkana'),
-  new Rune('e', 'ᛖ', 'e', 'ehwaz'),
-  new Rune('m', 'ᛗ', 'm', 'mannaz'),
-  new Rune('l', 'ᛚ', 'l', 'laguz'),
-  new Rune('ŋ', 'ᛜ', 'x', 'ingwaz'),
-  new Rune('d', 'ᛞ', 'd', 'dagaz'),
-  new Rune('o', 'ᛟ', 'o', 'othala'),
+  new Rune('t', 'ᛏ', 't', 'tiwaz', 'Tuw (een godheid)', 'overwinning, heil, eer'),
+  new Rune('b', 'ᛒ', 'b', 'berkana', 'berk', 'vruchtbaarheid, groei, voortduren'),
+  new Rune('e', 'ᛖ', 'e', 'ehwaz', 'edel dier (paard)', 'vertrouwen, betrouwbaarheid, gezelschap'),
+  new Rune('m', 'ᛗ', 'm', 'mannaz', 'mens', 'toename, ondersteuning'),
+  new Rune('l', 'ᛚ', 'l', 'laguz', 'laak (stroom, rivier)', 'vormloosheid, potentie, chaos'),
+  new Rune('ŋ', 'ᛜ', 'x', 'ingwaz', 'Ing (een godheid)', 'bevruchting, het begin, actualisatie van potentie'),
+  new Rune('d', 'ᛞ', 'd', 'dagaz', 'dag', 'hoop, blijdschap'),
+  new Rune('o', 'ᛟ', 'o', 'othala', 'oedel (erfgoed)', 'erfgoed, traditie, de adel'),
 
   new Rune('.', '᛫', '.', 'period'),
   new Rune(':', '᛬', ';', 'colon'),
   new Rune('+', '᛭', ',', 'plus'),
 ];
-
-
-//ᚠ	ᚢ	ᚦ	ᚬ	ᚱ	ᚴ	ᚼ	ᚾ	ᛁ	ᛅ	ᛋ	ᛏ	ᛒ	ᛘ	ᛚ	ᛦ
-//f	u	þ	ą	r	k	h	n	i	a	s	t	b	m	l	ʀ
 
 var youngerFuthark = <Rune>[
   new Rune('f', 'ᚠ', 'f', 'fe'),

@@ -42,13 +42,12 @@ class ApplicationComponent extends ReactComponent {
     var tweet$ = duration.stream.asBroadcastStream()
         //change the speed of the stream
         .flatMapLatest((duration) => _json$.sampleEachPeriod(duration))
-        // filter out the empty data created by flatmap/sample
+        // filter out the empty and double data created by flatmap/sample
+        .distinct()
         .where((e) => e.containsKey('created_at'))
         // only run when the button allows it
         .when(_toggle$)
       ;
-
-
 
     var lang$ = tweet$.map((data) => data['lang']);
 
