@@ -136,6 +136,7 @@ class DomElement extends ReactElement {
 
 class DomForm extends DomElement {
   DomForm(String tagName, Map props, content, List<String> listenTo)
+  // hack, this ..add('onChange') breaks when listenTo is null
     : super(tagName, props, content, listenTo..add('onChange')) {
 
     // Super hack, I can't access the native HtmlElement otherwise...
@@ -162,6 +163,9 @@ DomElement div({String className, content, List<String> listenTo}) =>
 
 DomElement ul({String className, content, List<String> listenTo}) =>
     new DomElement('ul', {'className': className}, content, listenTo);
+
+DomElement ol({String className, content, List<String> listenTo}) =>
+    new DomElement('ol', {'className': className}, content, listenTo);
 
 DomElement li({String id, String className, content, List<String> listenTo}) =>
     new DomElement('li', {'id': id,'className': className}, content, listenTo);
